@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Name=Smokenot
+GenericName=Quit smoking companion
+Comment=A small offline companion for leaving the cigarette behind
+Comment[pt]=Um companheiro pequeno e offline para largar o cigarro
+Exec=smokenot
+Icon=${SNAP}/usr/share/icons/hicolor/512x512/apps/smokenot.png
+Terminal=false
+Categories=Utility;
+Keywords=smoking;quit;cigarette;nicotine;health;cigarro;parar de fumar;saude;
+StartupNotify=true
+# The window class is the name of the binary, so the compositor matches this
+# entry to the window the app puts on screen.
+StartupWMClass=smokenot

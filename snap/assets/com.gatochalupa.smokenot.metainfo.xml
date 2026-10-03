@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.gatochalupa.smokenot</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <name>Smokenot</name>
+  <summary>A small offline companion for leaving the cigarette behind</summary>
+
+  <description>
+    <p>
+      Smokenot keeps a count of the days, the money and the cigarettes you did
+      not smoke, and puts a five minute breathing session next to you when a
+      craving shows up. It also keeps a short journal of cravings and slips, so
+      you can see your own pattern instead of guessing at it.
+    </p>
+    <p>Everything is written to one file in your own home directory. The app asks for no network, no account and no telemetry, and it works with the machine offline.</p>
+    <p>The counters are a way to notice your own progress. They are not medical advice and they are not a diagnosis of anything.</p>
+    <p xml:lang="pt">
+      O Smokenot conta os dias, o dinheiro e os cigarros que você não fumou, e
+      coloca uma sessão de respiração de cinco minutos ao lado quando a vontade
+      aparece. Também guarda um diário curto de vontades e recaídas, para você
+      ver o seu próprio padrão em vez de adivinhar.
+    </p>
+    <p xml:lang="pt">Tudo fica num arquivo dentro da sua pasta pessoal. O app não pede rede, conta nem telemetria, e funciona com o computador desligado da internet.</p>
+  </description>
+
+  <launchable type="desktop-id">smokenot.desktop</launchable>
+
+  <categories>
+    <category>Utility</category>
+  </categories>
+
+  <keywords>
+    <keyword>smoking</keyword>
+    <keyword>quit</keyword>
+    <keyword>nicotine</keyword>
+    <keyword>cigarro</keyword>
+    <keyword>parar de fumar</keyword>
+  </keywords>
+
+  <requires>
+    <display_length compare="ge">360</display_length>
+  </requires>
+
+  <!-- Nothing in the app is objectionable, so this is an empty declaration. -->
+  <content_rating type="oars-1.1"/>
+
+  <releases>
+    <release version="0.1.0" date="2026-09-27">
+      <description>
+        <p>First version: the days and money counters, the breathing session, the journal and the settings.</p>
+      </description>
+    </release>
+  </releases>
+</component>

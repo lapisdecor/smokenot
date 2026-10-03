@@ -1,0 +1,23 @@
+# The Mojo compiler, installed by build.sh into a virtual environment. It is a
+# pinned download rather than a source dependency, and it is 250MB of it.
+.venv/
+
+# Everything build.sh writes: the app, the test runner, the probe and the
+# scratch data directory the probe keeps its state in.
+build/
+
+# The packed snap, from ./build.sh snap. It is a build output, and the one to
+# hand to `snap install --dangerous` is the one you just packed.
+*.snap
+
+# The directories a non-managed `snapcraft` run leaves in the project.
+parts/
+stage/
+prime/
+
+# Cores and editor leftovers.
+core
+core.*
+*.swp
+*~
+.DS_Store

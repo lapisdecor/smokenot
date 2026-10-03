@@ -1,0 +1,80 @@
+# Smokenot as a snap.
+#
+# The app is a single binary, so the part builds it and drops the pieces where
+# a snap expects them: the binary in bin, the compiler's own runtime libraries
+# in lib, the desktop file and the AppStream metadata next to the snap's
+# metadata, and the icon in the icon theme.
+#
+# The build runs inside core24 because the compiler is a native binary: one
+# built against a newer glibc would not start there. `snap/stage.sh` does the
+# work; this file says what the part needs and how the app is launched.
+#
+# The yaml sits at the top of the repository on purpose: a managed build pushes
+# the project directory, and the sources, the script and the assets all have to
+# travel with it.
+#
+# There is no dbus plug and the app asks for no bus name: it is a plain window
+# on a main loop of its own, so there is nothing on the session bus for the
+# confinement to refuse.
+name: smokenot
+base: core24
+version: "0.1.0"
+title: Smokenot
+summary: A small offline companion for leaving the cigarette behind
+description: |
+  Smokenot keeps a count of the days, the money and the cigarettes you did not
+  smoke, and puts a five minute breathing session next to you when a craving
+  shows up. It also keeps a short journal of cravings and slips, so you can see
+  your own pattern instead of guessing at it.
+
+  Everything is stored in one file inside your own home directory. The app
+  asks for no network, no account and no telemetry, and it works with the
+  machine offline.
+
+  The counters are a way to notice your own progress. They are not medical
+  advice and they are not a diagnosis of anything.
+grade: stable
+confinement: strict
+compression: lzo
+
+# TODO(luis): confirm the licence and drop a LICENSE file next to the sources,
+# and fill in contact, website and issues, before this is offered anywhere
+# outside this machine. Snapcraft only warns about those, but the store asks
+# for all of them.
+license: GPL-3.0-or-later
+
+apps:
+  smokenot:
+    command: bin/smokenot
+    desktop: usr/share/applications/smokenot.desktop
+    extensions: [gnome]
+    plugs:
+      - desktop
+      - desktop-legacy
+      - opengl
+      - wayland
+      - x11
+
+parts:
+  smokenot:
+    plugin: nil
+    source: .
+    source-type: local
+    build-packages:
+      # Headers and the link time .so files: the app calls GTK directly.
+      - libgtk-4-dev
+      - libcairo2-dev
+      - libglib2.0-dev
+      - g++
+      # The compiler's runtime libraries travel with the app, so it is linked
+      # here with a path it can find in a snap, which has no $ORIGIN tricks
+      # available for arbitrary depths.
+      - patchelf
+      - python3
+      - python3-pip
+      - python3-venv
+    stage-packages:
+      - libstdc++6
+    override-build: |
+      # shellcheck shell=bash
+      bash "$CRAFT_PROJECT_DIR/snap/stage.sh" "$CRAFT_PART_INSTALL"
