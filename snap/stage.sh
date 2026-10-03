@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+# Copyright (C) 2026 Luís Louro
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Licensed under the GNU General Public License, version 3 or later. The full
+# text is in LICENSE.
+
 # Build smokenot and lay the pieces out the way a snap wants them.
 #
 #   stage.sh <install-dir>

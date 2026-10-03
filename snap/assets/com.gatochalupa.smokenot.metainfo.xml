@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (C) 2026 Luís Louro
+  SPDX-License-Identifier: GPL-3.0-or-later
+  Licensed under the GNU General Public License, version 3 or later.
+  The full text is in LICENSE.
+-->
 <component type="desktop-application">
   <id>com.gatochalupa.smokenot</id>
   <metadata_license>CC0-1.0</metadata_license>

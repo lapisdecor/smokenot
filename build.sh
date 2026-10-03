@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+# Copyright (C) 2026 Luís Louro
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Licensed under the GNU General Public License, version 3 or later. The full
+# text is in LICENSE.
+
 # Build, test and package smokenot.
 #
 # The link flags are not optional: the interface calls GTK, cairo and glib

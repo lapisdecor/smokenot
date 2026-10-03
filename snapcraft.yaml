@@ -1,3 +1,10 @@
+# Copyright (C) 2026 Luís Louro
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Licensed under the GNU General Public License, version 3 or later. The full
+# text is in LICENSE.
+
 # Smokenot as a snap.
 #
 # The app is a single binary, so the part builds it and drops the pieces where
@@ -37,11 +44,13 @@ grade: stable
 confinement: strict
 compression: lzo
 
-# TODO(luis): confirm the licence and drop a LICENSE file next to the sources,
-# and fill in contact, website and issues, before this is offered anywhere
-# outside this machine. Snapcraft only warns about those, but the store asks
-# for all of them.
 license: GPL-3.0-or-later
+website: https://github.com/lapisdecor/smokenot
+# The store asks for all four of these before it will list a snap, so they are
+# written out here rather than left to be filled in when it is offered.
+issues: https://github.com/lapisdecor/smokenot/issues
+source-code: https://github.com/lapisdecor/smokenot
+contact: lapisdecor@gmail.com
 
 apps:
   smokenot:

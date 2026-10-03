@@ -1,3 +1,10 @@
+# Copyright (C) 2026 Luís Louro
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Licensed under the GNU General Public License, version 3 or later. The full
+# text is in LICENSE.
+
 """What GTK calls when something happens.
 
 Each function here has the shape GTK expects and hands the rest of the work to
@@ -143,6 +150,54 @@ def on_reset(button: Widget, user_data: Widget) abi("C"):
 
 
 @always_inline("nodebug")
+def on_about(button: Widget, user_data: Widget) abi("C"):
+    """Put the about box up, and hold on to it while it is there.
+
+    Asking twice brings the window already open back to the front rather than
+    opening a second one, so the flag is checked before anything is built.
+    """
+    var ui = ui_of(user_data)
+    if ui[].about_open != Int32(0):
+        gtk.window_present(ui[].about_window)
+        return
+    var built = screens.build_about(user_data)
+    ui[].about_window = built[0]
+    ui[].about_close = built[1]
+    ui[].about_open = Int32(1)
+    # The flag is cleared again on the way out, or the next press would find a
+    # handle to a window GTK has already destroyed.
+    _ = external_call["g_signal_connect_data", c_ulong](
+        built[0], "destroy".as_c_string_span(), on_about_gone, user_data, gtk.no_notify(), c_int(0)
+    )
+    _ = external_call["g_signal_connect_data", c_ulong](
+        built[1], "clicked".as_c_string_span(), on_about_close, user_data, gtk.no_notify(), c_int(0)
+    )
+    _ = external_call["g_signal_connect_data", c_ulong](
+        built[1], "activate".as_c_string_span(), on_about_close, user_data, gtk.no_notify(), c_int(0)
+    )
+    gtk.window_present(built[0])
+
+
+@always_inline("nodebug")
+def on_about_close(button: Widget, user_data: Widget) abi("C"):
+    """The box's own close button, which is only its window's close."""
+    var ui = ui_of(user_data)
+    if ui[].about_open != Int32(0):
+        gtk.window_close(ui[].about_window)
+
+
+@always_inline("nodebug")
+def on_about_gone(window: Widget, user_data: Widget) abi("C"):
+    """The about window is destroyed, so there is nothing left to point at.
+
+    Closing a window in GTK4 destroys it rather than hiding it, which is what
+    the flag in the state has to be told about. The handle itself is left
+    alone: it is never read again until a new window replaces it.
+    """
+    ui_of(user_data)[].about_open = Int32(0)
+
+
+@always_inline("nodebug")
 def on_sos_draw(
     area: Widget, cr: gtk.Cairo, width: c_int, height: c_int, user_data: Widget
 ) abi("C"):
@@ -271,6 +326,12 @@ def wire_settings(user_data: Widget):
     )
     _ = external_call["g_signal_connect_data", c_ulong](
         ui[].settings_reset, "activate".as_c_string_span(), on_reset, user_data, gtk.no_notify(), c_int(0)
+    )
+    _ = external_call["g_signal_connect_data", c_ulong](
+        ui[].settings_about_button, "clicked".as_c_string_span(), on_about, user_data, gtk.no_notify(), c_int(0)
+    )
+    _ = external_call["g_signal_connect_data", c_ulong](
+        ui[].settings_about_button, "activate".as_c_string_span(), on_about, user_data, gtk.no_notify(), c_int(0)
     )
     _ = external_call["gtk_drawing_area_set_draw_func", NoneType](
         ui[].sos_area, on_sos_draw, user_data, gtk.no_notify()

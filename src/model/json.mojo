@@ -1,3 +1,10 @@
+# Copyright (C) 2026 Luís Louro
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Licensed under the GNU General Public License, version 3 or later. The full
+# text is in LICENSE.
+
 """A small JSON reader/writer built on a flat node arena.
 
 The state file is the app's only persistence, so this covers the JSON subset

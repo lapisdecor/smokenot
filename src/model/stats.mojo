@@ -1,3 +1,10 @@
+# Copyright (C) 2026 Luís Louro
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Licensed under the GNU General Public License, version 3 or later. The full
+# text is in LICENSE.
+
 """What the user has gained since quitting.
 
 All figures are derived from the profile and the elapsed time, never stored,

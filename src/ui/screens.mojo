@@ -1,3 +1,10 @@
+# Copyright (C) 2026 Luís Louro
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Licensed under the GNU General Public License, version 3 or later. The full
+# text is in LICENSE.
+
 """Building the window and keeping its text up to date.
 
 Nothing here is a callback. The screens are plain functions that create widgets
@@ -35,6 +42,17 @@ comptime PAGE_JOURNAL = "journal"
 comptime PAGE_SETTINGS = "settings"
 
 comptime JOURNAL_SHOWN: Int = 60
+
+# What the about box says about the app itself.
+#
+# These three are the same in both languages, which is why they are not looked
+# up: a version, a web address and a copyright notice are not interface text.
+# The version has to be the one snapcraft.yaml declares, and the two are edited
+# together by hand, because the app is a single binary with nothing at run time
+# to read the version out of.
+comptime APP_VERSION = "0.1.0"
+comptime APP_WEBSITE = "https://github.com/lapisdecor/smokenot"
+comptime APP_COPYRIGHT = "Copyright © 2026 Luís Louro"
 
 def stylesheet() -> String:
     """The window's own styling, on top of whatever theme is installed."""
@@ -918,12 +936,76 @@ def build_settings(user_data: Widget) -> Widget:
     ui[].settings_reset = reset
     gtk.box_append(box, reset)
 
+    # The about box sits on the other side of the page from the one button
+    # that destroys things, so the two are not neighbours by accident.
+    var about_button = gtk.button_new(t.t("settings_about"))
+    gtk.widget_add_css_class(about_button, "pill")
+    gtk.widget_set_halign(about_button, gtk.ALIGN_END)
+    ui[].settings_about_button = about_button
+    gtk.box_append(box, about_button)
+
     var scroll = gtk.scrolled_window_new(False, True)
     gtk.scrolled_window_set_child(scroll, box)
     gtk.widget_set_vexpand(scroll, True)
     fill_profile(user_data)
     refresh_settings(user_data)
     return scroll
+
+
+def build_about(user_data: Widget) -> Tuple[Widget, Widget]:
+    """The about box: which app, which version, and under what terms.
+
+    It is a window of its own rather than another row on the settings page,
+    because that is where a person looks for it and because the licence text is
+    longer than a card wants to hold. It belongs to the window it was opened
+    from and holds it up while it is there, so there is one thing to close.
+
+    Nothing in it can be clicked. A link would want a browser, a browser wants
+    a portal, and a strict snap with no dbus plug has neither, so the address
+    and the licence are printed to be read and copied instead.
+
+    The close button comes back second, because `ui.handlers` is what wires it
+    and the wiring is not this file's business.
+    """
+    var t = words(user_data)
+    var win = gtk.window_new()
+    gtk.window_set_title(win, t.t("about_title"))
+    gtk.window_set_transient_for(win, ui_of(user_data)[].window)
+    gtk.window_set_modal(win, True)
+    gtk.window_set_default_size(win, c_int(460), c_int(0))
+
+    var box = gtk.box_new(gtk.ORIENTATION_VERTICAL, c_int(0))
+    gtk.widget_set_margins(box, c_int(20))
+    gtk.widget_set_hexpand(box, True)
+
+    var name = heading(t.t("app_name") + String(" ") + String(APP_VERSION))
+    gtk.box_append(box, name)
+
+    var tagline = caption(t.t("app_tagline"))
+    gtk.box_append(box, tagline)
+
+    var holder = caption(APP_COPYRIGHT)
+    gtk.widget_set_margin_top(holder, c_int(6))
+    gtk.box_append(box, holder)
+
+    var website = body(t.t("about_website") + String(": ") + String(APP_WEBSITE))
+    gtk.widget_set_margin_top(website, c_int(6))
+    gtk.box_append(box, website)
+
+    var licence = body(t.t("about_license"))
+    gtk.widget_set_margin_top(licence, c_int(6))
+    gtk.box_append(box, licence)
+
+    var close = gtk.button_new(t.t("common_close"))
+    gtk.widget_add_css_class(close, "pill")
+    gtk.widget_add_css_class(close, "suggested-action")
+    gtk.widget_set_halign(close, gtk.ALIGN_END)
+    gtk.widget_set_margin_top(close, c_int(14))
+    gtk.box_append(box, close)
+
+    gtk.window_set_default_widget(win, close)
+    gtk.window_set_child(win, box)
+    return (win, close)
 
 
 # ------------------------------------------------------------ assembling
@@ -1032,6 +1114,7 @@ def retitle(user_data: Widget):
     set_label(ui[].settings_path, sys.state_path())
     if ui[].reset_armed == Int32(0):
         gtk.button_set_label(ui[].settings_reset, t.t("settings_reset"))
+    set_button(ui[].settings_about_button, t.t("settings_about"))
 
     var entry = ui[].journal_note
     if not is_null(entry):

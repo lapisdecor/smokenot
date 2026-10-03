@@ -1,3 +1,10 @@
+# Copyright (C) 2026 Luís Louro
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Licensed under the GNU General Public License, version 3 or later. The full
+# text is in LICENSE.
+
 """The bridge between GTK callbacks and the app's own state.
 
 GTK hands a callback one untyped pointer and nothing else, and the app has a
@@ -14,6 +21,13 @@ model holds cannot drift apart.
 
 `UiState` deliberately has no constructor: its block is zeroed before use, and
 GTK handles start out as nothing, which is exactly the zero pointer.
+
+That is also why the about window is a handle and a flag rather than a handle
+alone. Closing a window destroys it, so its handle stops meaning anything, but
+a pointer that has been freed cannot be put back to nothing: `Pointer` is
+non-nullable and the only empty one there is ever is the zero a fresh block
+already holds. So `about_window` is read only while `about_open` says there is
+something to read.
 """
 
 from gtk import gtk
@@ -66,9 +80,13 @@ struct UiState(TrivialRegisterPassable, ImplicitlyCopyable):
     var settings_status: Widget
     var settings_save: Widget
     var settings_about: Widget
+    var settings_about_button: Widget
     var settings_path: Widget
     var settings_lang: Widget
     var settings_reset: Widget
+    var about_window: Widget
+    var about_close: Widget
+    var about_open: Int32
     var switcher: Widget
     var sos_left: Int32
     var sos_running: Int32

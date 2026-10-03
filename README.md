@@ -43,8 +43,14 @@ run time.
   with a note if you want one. A slip is not a failure to be punished: it is
   counted, and the app keeps counting from where you are.
 - **The settings** also hold the language, the path of the saved file, a short
-  explanation of what the numbers mean and a reset that asks twice. The reset
-  takes you back to a blank setup page rather than an empty dashboard.
+  explanation of what the numbers mean, the about box and a reset that asks
+  twice. The reset takes you back to a blank setup page rather than an empty
+  dashboard.
+- **The about box** names the version, the address and the terms the app is
+  under, and is the one place the copyright notice is shown. Nothing in it is
+  clickable: opening the address wants a browser, a browser wants a portal, and
+  a strict snap with no `dbus` plug has neither, so the text is there to be read
+  and copied.
 
 ## Building it
 
@@ -154,5 +160,9 @@ The settings screen shows that path, and the reset button deletes the file.
 
 ## Licence
 
-GPL-3.0-or-later, as declared in `snap/snapcraft.yaml`. A `LICENSE` file should
-be added before this goes anywhere but this machine.
+Copyright (C) 2026 Luís Louro. GPL-3.0-or-later, as declared in
+`snapcraft.yaml` and in the AppStream metadata, and written into the head of
+every source file as `SPDX-License-Identifier: GPL-3.0-or-later`. The full text
+is in `LICENSE`. GPL asks a program with a window to show the notice somewhere,
+so the about box on the settings page carries it, along with the version and
+the address.

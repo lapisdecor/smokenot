@@ -1,3 +1,10 @@
+# Copyright (C) 2026 Luís Louro
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Licensed under the GNU General Public License, version 3 or later. The full
+# text is in LICENSE.
+
 """Driving the finished app without a person in front of it.
 
 This starts the real application, waits for the window to be up, and then
@@ -36,9 +43,9 @@ def on_settled(user_data: Widget) abi("C") -> c_int:
         run_checks(user_data)
     except:
         print("not ok - the checks could not finish")
-    _ = external_call["gtk_window_close", Bool](
-        ui_of(user_data)[].window
-    )
+    # `gtk_window_close` hands back nothing in GTK4, so the wrapper says so and
+    # there is nothing to assign.
+    gtk.window_close(ui_of(user_data)[].window)
     return c_int(0)
 
 
@@ -308,16 +315,24 @@ def run_checks(user_data: Widget) raises:
         screens.words(user_data).t("dash_quit_now"),
         "the button says what it does",
     )
+    # The press is stamped inside the handler, so the clock is read on both
+    # sides of it and the stored moment has to fall between the two. Reading
+    # it only afterwards would make this a race: a second boundary between the
+    # stamp and the reading would fail it, and only now and then.
+    var pressed_from = sys.now_epoch()
     press(ui[].dash_quit_now)
-    var pressed_at = sys.now_epoch()
+    var pressed_to = sys.now_epoch()
     harness.check(
         h,
         model_of(user_data)[].profile.quit_started
-        and model_of(user_data)[].profile.quit_epoch >= pressed_at,
+        and model_of(user_data)[].profile.quit_epoch >= pressed_from
+        and model_of(user_data)[].profile.quit_epoch <= pressed_to,
         "the press is the moment the count starts from",
     )
     harness.check(
-        h, not model_of(user_data)[].profile.is_planned(pressed_at), "a press ends the plan"
+        h,
+        not model_of(user_data)[].profile.is_planned(pressed_to),
+        "a press ends the plan",
     )
     harness.check(
         h,
@@ -325,10 +340,13 @@ def run_checks(user_data: Widget) raises:
         "the button leaves once the count is running",
     )
     harness.check(
-        h, model_of(user_data)[].profile.gains(pressed_at).days == Int64(0), "the first moment is day zero"
+        h,
+        model_of(user_data)[].profile.gains(pressed_to).days == Int64(0),
+        "the first moment is day zero",
     )
     harness.check(
-        h, model_of(user_data)[].profile.gains(pressed_at + Int64(2 * 86_400)).days == Int64(2),
+        h,
+        model_of(user_data)[].profile.gains(pressed_to + Int64(2 * 86_400)).days == Int64(2),
         "two days after the press there are two days",
     )
     # The same press, with the keyboard rather than the mouse.
@@ -395,6 +413,48 @@ def run_checks(user_data: Widget) raises:
     )
     harness.check(
         h, gtk.button_get_label(ui[].settings_save).byte_length() > 0, "the buttons keep their text"
+    )
+    harness.check(
+        h,
+        gtk.button_get_label(ui[].settings_about_button).byte_length() > 0,
+        "the about button is named in the new language",
+    )
+
+    # The about box: opened from the settings page, named in whichever language
+    # is stored, brought forward rather than doubled, and closed again on every
+    # gesture a person has, including the titlebar's own close.
+    harness.check(h, ui[].about_open == Int32(0), "the about box starts closed")
+    press(ui[].settings_about_button)
+    harness.check(h, ui[].about_open == Int32(1), "the about button opens the box")
+    harness.check(
+        h,
+        gtk.window_get_title(ui[].about_window) == screens.label(user_data, "about_title"),
+        "the about box is named in the chosen language",
+    )
+    harness.check(
+        h, gtk.window_get_title(ui[].about_window) != gtk.window_get_title(ui[].window),
+        "the about box is a window of its own",
+    )
+    var first_about = Int(ui[].about_window)
+    press_key(ui[].settings_about_button)
+    harness.check(
+        h, Int(ui[].about_window) == first_about, "a second press reuses the same box"
+    )
+    press(ui[].about_close)
+    harness.check(h, ui[].about_open == Int32(0), "the close button closes the box")
+    press(ui[].settings_about_button)
+    harness.check(h, ui[].about_open == Int32(1), "the box opens again afterwards")
+    press_key(ui[].about_close)
+    harness.check(h, ui[].about_open == Int32(0), "the keyboard closes it as well")
+    press(ui[].settings_about_button)
+    gtk.window_close(ui[].about_window)
+    harness.check(
+        h, ui[].about_open == Int32(0), "the titlebar close lets go of the handle"
+    )
+    harness.check(
+        h,
+        String(screens.APP_VERSION).byte_length() > 0,
+        "the box has a version to show",
     )
 
     # Reset asks once, then clears and goes back to the settings page. The

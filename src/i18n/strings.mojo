@@ -1,3 +1,10 @@
+# Copyright (C) 2026 Luís Louro
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Licensed under the GNU General Public License, version 3 or later. The full
+# text is in LICENSE.
+
 """Portuguese and English strings, plus locale-aware number formatting.
 
 Every user-visible string in the app lives here. `lookup` returns the key
@@ -305,6 +312,22 @@ def lookup(lang: Int, key: String) -> String:
         )
     if key == "settings_health_source":
         return String("Dados de saúde: Centers for Disease Control and Prevention.") if pt else String("Health data: Centers for Disease Control and Prevention.")
+
+    # The about box. The version, the address and the copyright notice are not
+    # here: they are the same in both languages, so they are written once in
+    # `ui.screens` next to the box itself.
+    if key == "about_title":
+        return String("Acerca do smokenot") if pt else String("About smokenot")
+    if key == "about_version":
+        return String("Versão") if pt else String("Version")
+    if key == "about_website":
+        return String("Sítio") if pt else String("Website")
+    if key == "about_license":
+        return (
+            String("Licenciado sob a Licença Pública Geral GNU, versão 3 ou posterior. O texto completo está no ficheiro LICENSE, e em gnu.org/licenses.")
+            if pt
+            else String("Licensed under the GNU General Public License, version 3 or later. The full text is in the LICENSE file, and at gnu.org/licenses.")
+        )
 
     # Units
     if key == "unit_minute":
